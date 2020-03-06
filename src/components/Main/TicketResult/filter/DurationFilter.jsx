@@ -113,8 +113,7 @@ const DurationFilter = ({ session, setFilterOption }) => {
   };
   useEffect(() => {
     setLegLists(getDurations(session.allResult));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getDurations, legLists]);
+  }, [getDurations, legLists, session.allResult]);
 
   const switchDrop = () => {
     setDrop(!drop);
