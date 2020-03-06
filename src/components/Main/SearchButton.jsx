@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { setError, clearError } from '../../redux/modules/error';
-import { createSession } from '../../redux/modules/session';
+// import { createSession } from '../../redux/modules/session';
 import { push } from 'connected-react-router';
 import TicketService from '../../services/TicketService';
 
@@ -88,17 +88,30 @@ const mapDispatchToProps = dispatch => ({
   createSession: allInfo => {
     dispatch(clearError());
     // URL -> /transport/flights/{originPlace_id}/{destinationPlace_id}/{outboundDate}/{inboundDate && inboundDate}/?query
+    const originPlace = allInfo.places.inBoundId.toLowerCase();
+    const originPlaceName = allInfo.places.inBoundName;
+    const destinationPlace = allInfo.places.outBoundId.toLowerCase();
+    const destinationPlaceName = allInfo.places.outBoundName;
+    const tripType = allInfo.datepicker.tripType;
+    const outboundDate = TicketService.convertDateToString(
+      allInfo.datepicker.outboundDate
+    );
+    const inboundDate =
+      allInfo.datepicker.inboundDate &&
+      TicketService.convertDateToString(allInfo.datepicker.inboundDate);
+    const adults = allInfo.passenger.adults;
+    const children = allInfo.passenger.children.length;
+    const childrenAge = allInfo.passenger.children.map(c => c.age).join('|');
+    const infants = allInfo.passenger.children.filter(c => c.type === 'infant')
+      .length;
+    const cabinclass = allInfo.passenger.cabinClass;
+
     dispatch(
       push(
-        `/transport/flights/${allInfo.places.inBoundId.toLowerCase()}/${allInfo.places.outBoundId.toLowerCase()}/${TicketService.convertDateToString(
-          allInfo.datepicker.outboundDate
-        )}${allInfo.datepicker.inboundDate &&
-          `/${TicketService.convertDateToString(
-            allInfo.datepicker.inboundDate
-          )}`}`
+        `/transport/flights/${originPlace}/${destinationPlace}/${outboundDate}?inboundDate=${inboundDate}&tripType=${tripType}&adults=${adults}&children=${children}&childrenAge=${childrenAge}&infants=${infants}&cabinclass=${cabinclass}&originPlaceName=${originPlaceName}&destinationPlaceName=${destinationPlaceName}`
       )
     );
-    dispatch(createSession(allInfo));
+    // dispatch(createSession(allInfo));
   },
   setError: errors => {
     dispatch(setError(errors));

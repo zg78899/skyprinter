@@ -8,8 +8,21 @@ const SET_CHILDREN = 'skyprinter/passenger/SET_CHILDREN';
 const SET_CHILD_AGE = 'skyprinter/passenger/SET_CHILD_AGE';
 const FETCH_CHILD_AGE = 'skyprinter/passenger/FETCH_CHILD_AGE';
 const FETCH_CHILDREN = 'skyprinter/passenger/FETCH_CHILDREN';
+const RESET_PASSENGER = 'skyprinter/passenger/RESET_PASSENGER';
+const INITIALIZE_PASSENGER = 'skyprinter/passenger/INITIALIZE_PASSENGER';
 
 //Action creater
+export const initializePassenger = () => ({
+  type: INITIALIZE_PASSENGER
+});
+
+export const resetPassenger = ({ cabinClass, adults, children }) => ({
+  type: RESET_PASSENGER,
+  cabinClass,
+  adults,
+  children
+});
+
 export const setCabinClass = cabinClass => ({
   type: SET_CABIN_CLASS,
   cabinClass
@@ -19,7 +32,7 @@ export const setChildren = mode => ({ type: SET_CHILDREN, mode });
 export const setChildAge = (id, age) => ({ type: SET_CHILD_AGE, id, age });
 
 //initalState
-const intialState = {
+const initialState = {
   cabinClass: 'economy',
   adults: 1,
   children: []
@@ -66,7 +79,7 @@ export function* fetchChildren(action) {
   try {
     yield put({
       type: FETCH_CHILDREN,
-      mode: action.mode,
+      mode: action.mode
     });
     const error = yield select(state => state.error);
 
@@ -97,8 +110,18 @@ export function* passengerSaga() {
 }
 
 //reducer
-export default function passenger(state = intialState, action) {
+export default function passenger(state = initialState, action) {
   switch (action.type) {
+    case INITIALIZE_PASSENGER:
+      return initialState;
+
+    case RESET_PASSENGER:
+      return {
+        cabinClass: action.cabinClass,
+        adults: action.adults,
+        children: action.children
+      };
+
     case SET_CABIN_CLASS:
       return {
         ...state,

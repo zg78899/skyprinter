@@ -128,8 +128,10 @@ const CarrierFilter = React.memo(({ session, setFilter }) => {
         price:
           _carriers.findIndex(predicate('CarrierId', Carrier.Id)) !== -1 &&
           numberWithCommas(
-            _carriers[_carriers.findIndex(predicate('CarrierId', Carrier.Id))]
-              .Price
+            Math.floor(
+              _carriers[_carriers.findIndex(predicate('CarrierId', Carrier.Id))]
+                .Price
+            )
           ),
         checked: inspectChecked(Carrier)
       }))
@@ -249,6 +251,7 @@ const CarrierFilter = React.memo(({ session, setFilter }) => {
                 >
                   {carrierList.name}
                 </StyleCheckBox>
+                {console.log('test', carrierList.price)}
                 <OptionContent> {`₩ ${carrierList.price}`} </OptionContent>
               </OptionHeader>
             ))}

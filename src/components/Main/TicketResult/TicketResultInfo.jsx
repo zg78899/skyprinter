@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
 import uuid from 'uuid';
-import { Popover, Progress } from 'antd';
+import { Progress } from 'antd';
 import DatePickerContainer from '../../../containers/DatePickerContainer';
 import Spinner from './Spinner';
 import SearchForm from '../SearchForm';
@@ -10,7 +10,6 @@ import StopFilter from './filter/StopFilter';
 import TimeFilter from './filter/TimeFilter';
 import DurationFilter from './filter/DurationFilter';
 import CarrierFilter from './filter/CarrierFilter';
-import AirportFilter from './filter/AirportFilter';
 import earth from '../../../images/earth.gif';
 import NoResult from './NoResult';
 import { HiddenHeader } from '../../styles';
@@ -47,6 +46,7 @@ import {
   ProgressDiv,
   MainLoading
 } from '../../styles/TicketResultInfo.style';
+import NoFilteredResult from './NoFilteredResult';
 
 function TicketResultInfo({
   tripType,
@@ -304,42 +304,45 @@ function TicketResultInfo({
                   <Progress percent={session.progress} showInfo={false} />
                 </ProgressDiv>
               )}
-              <ArrangeSortButtonWapper>
-                {sort.map(item => (
-                  <SortPriceButton
-                    key={uuid.v4()}
-                    id={item.id}
-                    toggle={item.toggle}
-                    onClick={() => changeSort(item.id)}
-                    className={item.toggle ? 'active' : null}
-                  >
-                    <p>{item.name}</p>
-                    <span>
-                      ₩
-                      {item.id === 'mostCheapest'
-                        ? session.cheapestItinerary.priceString
-                        : item.id === 'shortTrip'
-                        ? session.minDurationItinerary.priceString
-                        : session.earliestOutboundItinerary.priceString}
-                    </span>
-                    <p>
-                      {item.id === 'mostCheapest'
-                        ? `${
-                            session.cheapestItinerary.averaged
-                              ? `${session.cheapestItinerary.durationString} (평균)`
-                              : `${session.cheapestItinerary.durationString}`
-                          }`
-                        : item.id === 'shortTrip'
-                        ? `${
-                            session.minDurationItinerary.averaged
-                              ? `${session.minDurationItinerary.durationString} (평균)`
-                              : `${session.minDurationItinerary.durationString}`
-                          }`
-                        : session.earliestOutboundItinerary.departureTimeString}
-                    </p>
-                  </SortPriceButton>
-                ))}
-              </ArrangeSortButtonWapper>
+              {session.cheapestItinerary && (
+                <ArrangeSortButtonWapper>
+                  {sort.map(item => (
+                    <SortPriceButton
+                      key={uuid.v4()}
+                      id={item.id}
+                      toggle={item.toggle}
+                      onClick={() => changeSort(item.id)}
+                      className={item.toggle ? 'active' : null}
+                    >
+                      <p>{item.name}</p>
+                      <span>
+                        ₩
+                        {item.id === 'mostCheapest'
+                          ? session.cheapestItinerary.priceString
+                          : item.id === 'shortTrip'
+                          ? session.minDurationItinerary.priceString
+                          : session.earliestOutboundItinerary.priceString}
+                      </span>
+                      <p>
+                        {item.id === 'mostCheapest'
+                          ? `${
+                              session.cheapestItinerary.averaged
+                                ? `${session.cheapestItinerary.durationString} (평균)`
+                                : `${session.cheapestItinerary.durationString}`
+                            }`
+                          : item.id === 'shortTrip'
+                          ? `${
+                              session.minDurationItinerary.averaged
+                                ? `${session.minDurationItinerary.durationString} (평균)`
+                                : `${session.minDurationItinerary.durationString}`
+                            }`
+                          : session.earliestOutboundItinerary
+                              .departureTimeString}
+                      </p>
+                    </SortPriceButton>
+                  ))}
+                </ArrangeSortButtonWapper>
+              )}
               <InfiniteScroll
                 hasMore={
                   session.pollResult.Itineraries[session.ticketEndIndex] !==
@@ -416,12 +419,24 @@ function TicketResultInfo({
                 가격 변동 알림 받기
               </PriceAlarm>
               <StopFilter />
+              {session.allResult &&
+                session.allResult.Itineraries &&
+                session.allResult.Itineraries.length > 0 &&
+                !session.pollResult.Itineraries.length && (
+                  <>
+                    <TimeFilter />
+                    <DurationFilter />
+                    <CarrierFilter />
+                  </>
+                )}
             </TicketFilterSection>
             <TicketResultSection filterLoader={session.filterLoader}>
               <ResultAndArrangeStandard>
                 <div>
                   <span className="complete">
-                    {`${session.allResult.Itineraries.length}개의 결과`}
+                    {session.allResult && session.allResult.Itineraries
+                      ? `${session.allResult.Itineraries.length}개의 결과`
+                      : `0 개의 결과`}
                   </span>
                 </div>
                 <SelectArrageStandard>
@@ -434,7 +449,14 @@ function TicketResultInfo({
                   </select>
                 </SelectArrageStandard>
               </ResultAndArrangeStandard>
-              <NoResult />
+              {session.allResult &&
+              session.allResult.Itineraries &&
+              !session.allResult.Itineraries.length &&
+              !session.pollResult.Itineraries.length ? (
+                <NoResult />
+              ) : (
+                <NoFilteredResult />
+              )}
               <LuggageMoreDetail>
                 <p>
                   <b>요금은 매일 갱신됩니다.</b> 예약 시기의 이용 가능 여부에

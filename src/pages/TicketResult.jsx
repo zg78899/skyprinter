@@ -3,8 +3,9 @@ import HeaderContainer from '../containers/HeaderContainer';
 import Main from '../components/Main/TicketResult';
 import Footer from '../components/Footer';
 import Copyright from '../components/Copyright';
+import withPath from '../hocs/withPath';
 
-const TicketResult = () => (
+const TicketResult = ({ location, match }) => (
   <>
     <HeaderContainer width="144rem" />
     <Main />
@@ -13,4 +14,4 @@ const TicketResult = () => (
   </>
 );
 
-export default TicketResult;
+export default withPath(TicketResult);
